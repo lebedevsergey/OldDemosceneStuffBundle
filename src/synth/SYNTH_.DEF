@@ -1,0 +1,6 @@
+; Copyright 2002 Sergey Lebedev
+; Licensed under the Apache License, Version 2.0
+
+;DLL exports definitions
+LIBRARY SYNTH
+EXPORTS Generate

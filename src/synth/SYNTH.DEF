@@ -1,0 +1,136 @@
+; Copyright 2002 Sergey Lebedev
+; Licensed under the Apache License, Version 2.0
+
+; constants and macros
+
+CHK_SYNT_SCRIPT_ERR1   equ  1
+SAVE_SAM 	       equ  1
+
+.DATA
+COM_CODE	=	0
+
+DEF_SYNTH_COM	macro	COM_NAME,COM_PROC
+		COM_NAME=COM_CODE
+		dd	offset	COM_PROC
+		COM_CODE=COM_CODE+1
+endm
+
+END_COM	         =   255        
+Synth_Com_Table:
+IFDEF CHK_SYNT_SCRIPT_ERR1
+		DEF_SYNTH_COM	NONE,Err_
+ELSE
+		DEF_SYNTH_COM	NONE,Empty
+ENDIF
+		DEF_SYNTH_COM	SETUP_OSC_COM,Setup_Oscillator
+		DEF_SYNTH_COM	DISTORT_COM,Distort_Sample
+		DEF_SYNTH_COM	SEQ_COM,Sequencer
+		DEF_SYNTH_COM	REVERB_COM,Reverb_ 
+		DEF_SYNTH_COM	SET_BPM_SAMPLE_LEN_COM,Set_Bpm_Sample_Len
+		DEF_SYNTH_COM	DO_CUSTOM_SOUND_COM,Do_Custom_Sound
+		DEF_SYNTH_COM	FILT_COM,Uni_Filter
+		DEF_SYNTH_COM	SETUP_HARM_COM,Setup_Harmonizer
+		DEF_SYNTH_COM	DELAY_COM,Delay_
+		DEF_SYNTH_COM	MOD_AMP_COM,Modulate_Amp
+		DEF_SYNTH_COM	SET_LEN_MUL_COM,Set_Len_Mul
+		DEF_SYNTH_COM	SET_CUST_WAVE_COM,Set_Cust_Wave
+		DEF_SYNTH_COM	DELAY2_COM,Delay2
+		DEF_SYNTH_COM	SET_PITCH_SPEED_COM,Set_Pitch_Speed
+		DEF_SYNTH_COM	SET_A_D_COM,Set_A_D_Coef
+
+IFDEF CHK_SYNT_SCRIPT_ERR1
+		dd   Err_
+ELSE
+		dd   Empty
+ENDIF
+Synth_Com_Table_End:
+
+AMP_ENV_MAX_VALUE    equ  1  ;0FFFFh/2
+FREQ_ENV_MAX_VALUE   equ  440
+PRECALC_WAVE_LEN     equ  1024
+
+DEFAULT_PITCH_SPEED	equ	1
+
+MAX_ENVELOPE_NODES_NUM  =  30  
+
+SAMPLE_RATE_		equ	22050    ; Частота сэмплирования
+MAX_SAMPLE_SIZE_	equ	SAMPLE_RATE_*10    ; Размер сэмплов - до 9 секунд
+MAX_SAMPLE_VAL2		equ	32628.0
+MAX_SAMPLE_VAL		equ	1.0
+
+ON_VALUE               equ  1
+OFF_VALUE              equ  0
+NULL		       equ  0FFFFFFFFh
+NULL_SYM               equ  'LLUN'
+NULL2  		       equ  0FFh
+
+               TMP_SAMPLE  struc
+					dd 120 dup (?)  ; !!!!!!! mem wal
+Sample_Data   dd  MAX_SAMPLE_SIZE_ dup (?)
+					dd 120 dup (?)  ; !!!!!!! mem wall
+               ends
+
+Comp_Fl  macro Comp1,Comp2,Add1,Add2
+local @@tt3,@@tt4
+
+	fld    st	
+        fcomp  Comp1
+        fstsw  ax
+        sahf
+        jb     @@tt3
+
+        fcomp  Comp2
+        fstsw  ax
+        sahf
+        ja     @@tt3
+	Add1
+	jmp    @@tt4
+@@tt3:
+	finit
+	fld    Add1
+@@tt4:
+
+endm
+
+GET_SAMPLE_ADDR macro  REG_      ; eax - sample num
+		lea  REG_,Tmp_Samples
+		imul eax,SIZE TMP_SAMPLE
+		add  REG_,eax
+endm
+
+GET_CHANNEL_ADDR macro  REG_      ; eax - sample num
+		lea  REG_,Channels
+		imul eax,SIZE TMP_SAMPLE
+		add  REG_,eax
+endm
+
+COPY_SAMPLE macro
+        mov ecx,SAMPLE_SIZE
+	rep movsd
+endm
+
+CLEAR_SAMPLE  macro
+	xor eax,eax
+        mov ecx,MAX_SAMPLE_SIZE_
+	rep stosd
+endm
+
+.CODE
+Empty: 
+       retn    
+
+.DATA
+SAMPLE_RATE		dd	SAMPLE_RATE_
+Max_Sample_Val_		dd	MAX_SAMPLE_VAL
+Min_Sample_Val_		dd	-MAX_SAMPLE_VAL
+Max_Sample_Val_2	dd	MAX_SAMPLE_VAL2
+Min_Sample_Val_2	dd	-MAX_SAMPLE_VAL2
+
+PRECALC_WAVE_LEN_	dd	PRECALC_WAVE_LEN
+
+Def_Decay_Len		dd	0.25
+Def_Attack_Len		dd	0.25
+
+
+.DATA?
+SAMPLE_SIZE  	   dd    ?
