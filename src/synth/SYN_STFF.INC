@@ -333,23 +333,23 @@ Set_Cust_Wave  endp
 Setup_Oscillator  proc  
 	    pushad
 	    xor  eax,eax
-	    lodsb  		; Берем номер осциллятора
+	    lodsb  		; ┴хЁхь эюьхЁ юёЎшыы ЄюЁр
 	    push eax	
 	    GET_OSCILL_ADDR edi
 	    xor  eax,eax
-	    lodsb  		; Берем тип осциллятора
+	    lodsb  		; ┴хЁхь Єшя юёЎшыы ЄюЁр
 	    mov  [edi].Osc_Type,eax
-	    lodsd  		; Берем коэф. микширования
+	    lodsd  		; ┴хЁхь ъю¤Ї. ьшъ°шЁютрэш 
 	    mov  [edi].Osc_Mix_Coef,eax	   
 	    xor  eax,eax
-	    lodsb  		; Берем частоту расстройки
+	    lodsb  		; ┴хЁхь ўрёЄюЄє ЁрёёЄЁющъш
 	    mov  Tmp2,eax
 	    fild Tmp2
 	    fidiv Percent3
 	    fmul  Flanger_Freq_Coef2
 	    fadd  Flanger_Freq_Coef1
 	    fstp  [edi].Flanger_Freq_Coef
-	    lodsb  		; Берем  shape param
+	    lodsb  		; ┴хЁхь  shape param
 	    mov   Tmp1,ax
 	    fild  Tmp1
 	    fidiv Percent
@@ -359,11 +359,11 @@ Setup_Oscillator  proc
      	    GET_HARMONIZER_ADDR ebp
 	    mov  [edi].Osc_Harmonizer_Ptr,ebp
 
-	    mov  eax,Act_Osc_Num   ; Добавляем осц. в список
+	    mov  eax,Act_Osc_Num   ; ─юсрты хь юёЎ. т ёяшёюъ
 	    mov  Act_Osc_Ptrs[eax*4],edi
 	    inc  Act_Osc_Num
 
-                                   ; Инитим осциллятор
+                                   ; ╚эшЄшь юёЎшыы ЄюЁ
 	    mov  eax,[edi].Osc_Type
 	    mov  eax,dword ptr Init_Sound_Gen_Proc_Table[eax*4]
 	    call eax
@@ -465,11 +465,11 @@ Sequencer   proc
         call Setup_Envelope
 
         mov   edx,Seq_Amp_Env_Ptr
-                       ; Указатель на огибающую нот по амплитуде
+                       ; ╙ърчрЄхы№ эр юушср■∙є■ эюЄ яю рьяышЄєфх
         mov   edi,Seq_Freq_Env_Ptr
-                        ; Указатель на огибающую нот по частоте
+                        ; ╙ърчрЄхы№ эр юушср■∙є■ эюЄ яю ўрёЄюЄх
         push edx
-        push edi            ; Чистим все это
+        push edi            ; ╫шёЄшь тёх ¤Єю
         CLEAR_SAMPLE
         mov  edi,edx
         CLEAR_SAMPLE
@@ -520,7 +520,7 @@ Sequencer   proc
 
         cmp  Note_Pitch_Flg,1
         jnz  @@Do_No_Pitch
-	cmp  ebp,1        ; Если нота - первая, то предыд. нету и питча - тоже
+	cmp  ebp,1        ; ┼ёыш эюЄр - яхЁтр , Єю яЁхф√ф. эхЄє ш яшЄўр - Єюцх
         jz   @@Do_No_Pitch
 
         call Do_Note_Picht	
@@ -1030,8 +1030,8 @@ Do_Sound proc
 	 mov   eax,[esi].Osc_Type	
 	 mov   eax,dword ptr Sound_Gen_Proc_Table[eax*4] 		
 	 mov   Cur_Wave_Func,eax
-	 call  Harmonizer             ;  Генерим
-         fmul dword ptr [edx]     ; Огибающая по амплитуде
+	 call  Harmonizer             ;  ├хэхЁшь
+         fmul dword ptr [edx]     ; ╬ушср■∙р  яю рьяышЄєфх
          fmul  [esi].Osc_Mix_Coef
          fadd  Cur_Sound
          fstp  Cur_Sound
@@ -1041,7 +1041,7 @@ Do_Sound proc
          fld   Cur_Sound
          fstp  dword ptr [edi]
 
-	 fld   dword ptr [ebp]    ; Огибающая по частоте
+	 fld   dword ptr [ebp]    ; ╬ушср■∙р  яю ўрёЄюЄх
          fmul  Freq_Coef
          fadd   Cur_Angle
          fstp  Cur_Angle
@@ -1142,7 +1142,7 @@ Setup_Envelope    proc
         mov    Env_Max_Amp,edx
 
         lea    edx,[edi].ENV_NODES
-                                ; Собираем узлы огибающей
+                                ; ╤юсшЁрхь єчы√ юушср■∙хщ
         mov    [edi].NODES_NUM,0
 @@tt1:
         mov    eax,[esi]
@@ -1153,7 +1153,7 @@ Setup_Envelope    proc
         fimul  Env_Max_Amp
         fstp   [edx].NODE_VALUE
 
-        fld    dword ptr [esi+4]    ; Берем node len
+        fld    dword ptr [esi+4]    ; ┴хЁхь node len
         fstp   dword ptr [edx].NODE_LEN
 
         add    esi,8
@@ -1179,7 +1179,7 @@ Calc_Envelope    proc
 ; ecx - envelope len
         pushad
         mov    Env_Len,ecx
-                                       ; Считаем nodes rates
+                                       ; ╤ўшЄрхь nodes rates
         lea    edx,[esi].ENV_NODES
         mov    ecx,[esi].NODES_NUM
         xor    ebx,ebx
@@ -1198,7 +1198,7 @@ Calc_Envelope    proc
         dec   ecx
         jnz   @@Calc_Rates
 
-                                ; Считаем огибающую
+                                ; ╤ўшЄрхь юушср■∙є■
         xor   ebx,ebx
         mov   edx,[esi].NODES_NUM
         lea   esi,[esi].ENV_NODES
@@ -1244,7 +1244,7 @@ Calc_Envelope_From_To_Pos    proc
 	mov	@@End_Pos,ebx
 
         mov    Env_Len,ecx
-                                       ; Считаем nodes rates
+                                       ; ╤ўшЄрхь nodes rates
         lea    edx,[esi].ENV_NODES
         mov    ecx,[esi].NODES_NUM
         xor    ebx,ebx
@@ -1263,7 +1263,7 @@ Calc_Envelope_From_To_Pos    proc
         dec   ecx
         jnz   @@Calc_Rates
 
-                                ; Считаем огибающую
+                                ; ╤ўшЄрхь юушср■∙є■
         xor   ebx,ebx
         mov   edx,[esi].NODES_NUM
         lea   esi,[esi].ENV_NODES

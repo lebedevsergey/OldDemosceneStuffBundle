@@ -53,8 +53,8 @@ DEFAULT_PITCH_SPEED	equ	1
 
 MAX_ENVELOPE_NODES_NUM  =  30  
 
-SAMPLE_RATE_		equ	22050    ; — бв®в  бн¬Ї«Ёа®ў ­Ёп
-MAX_SAMPLE_SIZE_	equ	SAMPLE_RATE_*10    ; ђ §¬Ґа бн¬Ї«®ў - ¤® 9 бҐЄг­¤
+SAMPLE_RATE_		equ	22050    ; Частота сэмплирования
+MAX_SAMPLE_SIZE_	equ	SAMPLE_RATE_*10    ; Размер сэмплов - до 9 секунд
 MAX_SAMPLE_VAL2		equ	32628.0
 MAX_SAMPLE_VAL		equ	1.0
 

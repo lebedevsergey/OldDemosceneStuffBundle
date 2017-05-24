@@ -34,7 +34,7 @@ Raw2Wav		endp
 .DATA
 
 ;Sample_File db  "sample1.wav",0,0,0,0           
-  				  ; Заголовок .WAV файла
+  				  ; ╟руюыютюъ .WAV Їрщыр
 Riff_Head       db  "RIFF"
 Riff_Len        dd  RIFF_HEAD_LEN
 

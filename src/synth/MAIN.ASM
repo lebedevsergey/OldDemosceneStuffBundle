@@ -11,24 +11,24 @@ Global Init: near
 .CODE
 _main:
 
-include	compiler.inc			;компилер внешнего скрипта
-include math.inc			;всякая нужная математика
-include synth.inc                       ;синт
-include	disk.inc                        ;работа с .wav 
+include	compiler.inc			;ъюьяшыхЁ тэх°эхую ёъЁшяЄр
+include math.inc			;тё ър  эєцэр  ьрЄхьрЄшър
+include synth.inc                       ;ёшэЄ
+include	disk.inc                        ;ЁрсюЄр ё .wav 
 
 .CODE
 Init	proc
-; Это надо вызвать перед началом работы синта
+; ▌Єю эрфю т√чтрЄ№ яхЁхф эрўрыюь ЁрсюЄ√ ёшэЄр
 	pushad
-	lea	ebp,Synth_Buf		; Указатель на память для буферов синта
-					; ее размер -  SYNTH_TMP_MEM_SIZE
-	call	Init_Synth              ; это инициализация синта
+	lea	ebp,Synth_Buf		; ╙ърчрЄхы№ эр ярь Є№ фы  сєЇхЁют ёшэЄр
+					; хх ЁрчьхЁ -  SYNTH_TMP_MEM_SIZE
+	call	Init_Synth              ; ¤Єю шэшЎшрышчрЎш  ёшэЄр
 	popad
 	retn
 Init	endp
 
 Generate proc
-; Сгенерить сэмпл
+; ╤ухэхЁшЄ№ ё¤ьяы
 ; esi - script ptr
 ; ecx - script len
 ; edi - wav ptr
@@ -43,26 +43,26 @@ Generate proc
 	mov	ecx,Text_Script_Len
         lea	esi,Text_Script_Buf
 	lea	edi,Inner_Script_Buf
-	call	Compile            ; перевод внешнего скрипта (текстовый)
-				   ; во внутренний (циферки)
-				   ; по идее, в интре не нужен - нефиг там
-				   ; текстовый скрипт держать
-				   ; тогда и compiler.inc
-				   ; нужно выкинуть	
+	call	Compile            ; яхЁхтюф тэх°эхую ёъЁшяЄр (ЄхъёЄют√щ)
+				   ; тю тэєЄЁхээшщ (ЎшЇхЁъш)
+				   ; яю шфхх, т шэЄЁх эх эєцхэ - эхЇшу Єрь
+				   ; ЄхъёЄют√щ ёъЁшяЄ фхЁцрЄ№
+				   ; Єюуфр ш compiler.inc
+				   ; эєцэю т√ъшэєЄ№	
 
-	lea	esi,Inner_Script_Buf  ;указатель на скрипт для синта 
-	lea	edi,Tmp_Sample2    ; буфер для сэмпла
+	lea	esi,Inner_Script_Buf  ;єърчрЄхы№ эр ёъЁшяЄ фы  ёшэЄр 
+	lea	edi,Tmp_Sample2    ; сєЇхЁ фы  ё¤ьяыр
 	call	Do_Sample
 
-	lea	esi,Tmp_Sample2    ; загоним сэмпл в .wav (для интерфейса 
-				   ; синта так удобнее)
-	mov	edi,Wav_File_Ptr   ; в интре тоже не особо нужно ->
-	call	Raw2Wav            ; выкидывается disk.inc
+	lea	esi,Tmp_Sample2    ; чруюэшь ё¤ьяы т .wav (фы  шэЄхЁЇхщёр 
+				   ; ёшэЄр Єръ єфюсэхх)
+	mov	edi,Wav_File_Ptr   ; т шэЄЁх Єюцх эх юёюсю эєцэю ->
+	call	Raw2Wav            ; т√ъшф√трхЄё  disk.inc
 
 	popad
 		
-	mov	eax,Riff_Len	   ; Интерфейс хочет знать
-				   ; какой длины сэмпл получился
+	mov	eax,Riff_Len	   ; ╚эЄхЁЇхщё їюўхЄ чэрЄ№
+				   ; ъръющ фышэ√ ё¤ьяы яюыєўшыё 
 	retn
 Generate	endp
 

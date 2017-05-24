@@ -55,15 +55,15 @@ Do_Sample    proc
 		mov  edi,Tmp_Samples_Ptr
                 mov  ecx,Tmp_Samples_Size/4
 		rep  stosd
-					; Чистим место для сэмплов
+					; ╫шёЄшь ьхёЄю фы  ё¤ьяыют
 		lea  edi,Oscillators
                 mov  ecx,Oscillators_Size/4
-		rep  stosd           ; Чистим осцилляторы
+		rep  stosd           ; ╫шёЄшь юёЎшыы ЄюЁ√
 
 		mov  Len_Mul,1
 		mov  Act_Osc_Num,0
 
-		mov	seed,RAND_CONST     ; Инитим случайные числа
+		mov	seed,RAND_CONST     ; ╚эшЄшь ёыєўрщэ√х ўшёыр
 		mov	Pitch_Speed,DEFAULT_PITCH_SPEED
 
 		mov	eax,Def_Attack_Len
@@ -80,7 +80,7 @@ Do_Sample    proc
 		finit
 
 		xor  eax,eax
-		lodsb           ; Берем команду
+		lodsb           ; ┴хЁхь ъюьрэфє
 		cmp  al,END_COM		
 		jz   @@exit
 		xchg eax,ebx

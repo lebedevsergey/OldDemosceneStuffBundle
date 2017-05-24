@@ -485,7 +485,7 @@ Distort_Sample  proc
         lea    edi,Distort_Nodes
         mov    edx,__1
 	call   Setup_Envelope
-                                       ; Считаем интервалы
+                                       ; ╤ўшЄрхь шэЄхЁтры√
         lea    edi,Distort_Nodes
         lea    edx,[edi].ENV_NODES
         mov    ecx,[edi].NODES_NUM
@@ -506,7 +506,7 @@ Distort_Sample  proc
         dec    ecx
         jnz    @@Calc_Interv
 	fstp   st
-                                      ; Дистортим
+                                      ; ─шёЄюЁЄшь
 	mov   edi,Ready_Sample_Ptr
 	xor   ecx,ecx
 @@ll1:
@@ -515,7 +515,7 @@ call Sample_Cut_Max_Min
 	fabs
 	
         push  ecx
-                                       ; Ищем интервал, куда попадает тек. значение
+                                       ; ╚∙хь шэЄхЁтры, ъєфр яюярфрхЄ Єхъ. чэрўхэшх
         lea    ebp,Distort_Nodes
         lea    edx,[ebp].ENV_NODES
         mov    ecx,[ebp].NODES_NUM
@@ -539,7 +539,7 @@ call Sample_Cut_Max_Min
         add   edx,SIZE ENV_NODE
         dec   ecx
         jnz   @@Find_Interv
-	fstp  st             ; Ни фига не нашли - по идее, такого быть не должно
+	fstp  st             ; ═ш Їшур эх эр°ыш - яю шфхх, Єръюую с√Є№ эх фюыцэю
 	fldz
 @@Found_Interv:
 
@@ -687,7 +687,7 @@ Delay_  proc
 	mov  edi,Ready_Sample_Ptr
 
         xor   eax,eax
-        lodsb           ; Берем операнд
+        lodsb           ; ┴хЁхь юяхЁрэф
         mov   Old_Signal_Amplify,eax
         fild  Old_Signal_Amplify
 	fidiv Percent
@@ -727,7 +727,7 @@ Reverb_ proc
 	pushad
 
         xor   eax,eax
-        lodsb           ; Берем операнд
+        lodsb           ; ┴хЁхь юяхЁрэф
         mov   Old_Signal_Amplify,eax
         fild  Old_Signal_Amplify
 	fidiv Percent
@@ -827,9 +827,9 @@ Delay2  proc
 	pushad
 
         xor   eax,eax
-        lodsb           ; Берем операнд
+        lodsb           ; ┴хЁхь юяхЁрэф
         mov   @@Feedback,eax
-        lodsb           ; Берем операнд
+        lodsb           ; ┴хЁхь юяхЁрэф
         mov   @@Step,eax
 	cmp   eax,Note_Count
 	jae   @@ex
@@ -849,7 +849,7 @@ Delay2  proc
 	fistp @@Delay2
 
 	mov  esi,Ready_Sample_Ptr
-	mov  ecx,Seq_Notes_Cyc_Num  ; Задержку делаем по циклам
+	mov  ecx,Seq_Notes_Cyc_Num  ; ╟рфхЁцъє фхырхь яю Ўшъырь
 @@Notes_Cyc_Cyc:
         push ecx
 
