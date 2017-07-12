@@ -1,0 +1,123 @@
+<html>
+<head></head>
+<body bgcolor="#ffffff">
+
+<div id="linecanvas"></div>
+
+<script>
+function checkbrowser() {
+	this.b = document.body;
+	this.dom = document.getElementById ? 1:0;
+	this.ie = this.b && typeof this.b.insertAdjacentHTML != 'undefined';
+	this.mozilla = typeof(document.createRange) != 'undefined' && typeof((document.createRange()).setStartBefore) != 'undefined';
+}
+
+function Graphics(container) {
+	this.browser_version = new checkbrowser();
+	this.color = '#000000';
+	this.backbuffer = '';
+//Drawing to div-element or to the document itself?
+	if (typeof(container) == 'string' && container != '' && typeof(document.getElementById(container)) != 'undefined') {
+		this.container = document.getElementById(container);
+		
+		this.clear = function() {this.container.innerHTML = "";this.backbuffer = '';}
+		
+		var paint_ie = function() {
+			this.container.insertAdjacentHTML("BeforeEnd", this.backbuffer);
+			this.backbuffer = '';
+		}
+		var paint_moz = function() {
+			var r = document.createRange();
+			r.setStartBefore(this.container);
+			this.container.appendChild(r.createContextualFragment(this.backbuffer));
+			this.backbuffer = '';
+		}		
+		this.paint = this.browser_version.ie ? paint_ie : paint_moz;
+	}
+	else
+	{
+		this.clear = function() {this.backbuffer = '';}
+		this.paint = function() {document.write(this.backbuffer);this.backbuffer = '';}
+	}	
+}
+
+Graphics.prototype.setPixel = function(x, y, w, h){this.backbuffer += '<div style="position:absolute;left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;background-color:'+this.color+';overflow:hidden;"></div>';}
+
+Graphics.prototype.drawBezier = function(start_x, start_y, w, h)
+{
+	var BEZIER_STEPS_NUM = 25;
+	var Bezier_Points_x = new Array();
+	var Bezier_Points_y = new Array();
+
+	var x1 = Math.random();
+	var y1 = Math.random();
+	var x2 = Math.random();
+	var y2 = Math.random();
+	var x3 = Math.random();
+	var y3 = Math.random();
+	var x4 = Math.random();
+	var y4 = Math.random();
+
+	var i=0;
+	var t, t_step=1/BEZIER_STEPS_NUM;
+
+	for(t=0; t<1; t=t+t_step) {
+		Bezier_Points_x[i]=start_x + Math.round(w*((1-t)*(1-t)*(1-t)*x1+3*t*(1-t)*(1-t)*x2+3*t*t*(1-t)*x3+t*t*t*x4));
+		Bezier_Points_y[i]=start_y + Math.round(h*((1-t)*(1-t)*(1-t)*y1+3*t*(1-t)*(1-t)*y2+3*t*t*(1-t)*y3+t*t*t*y4));
+		i++;
+	}
+
+	for(i=0;i<BEZIER_STEPS_NUM-1;i++)
+		this.setPixel(Bezier_Points_x[i], Bezier_Points_y[i], 3,3);
+
+}
+
+var BEZIER_CURVES_NUM = 4;
+var SYMBOL_TIME_INTERVAL = 5;
+var MAX_LINE_SYM_NUM = 30;
+var MAX_LINES_NUM = 7;
+
+var w = 20;
+var h = 30;
+var space_x = w/10;
+var space_y = h/10;
+var sx = 0;
+var sy = 0;
+
+var cur_syms_num = 0;
+var cur_lines_num = 0;
+var max_syms_num = 10;//Math.round(Math.random()*MAX_LINE_SYM_NUM);
+
+function timer_func()
+{
+	if (cur_lines_num > MAX_LINES_NUM){
+		linecanvas_graphics.clear();
+		sx = 0; sy = 0;
+		cur_lines_num = 0;
+	}
+
+	if (cur_syms_num > max_syms_num){
+		cur_syms_num = 0;
+		max_syms_num = Math.random();
+		max_syms_num = Math.round(max_syms_num*MAX_LINE_SYM_NUM);
+		sx = 0; sy = sy + h + space_y;
+		cur_lines_num++;
+	}
+
+	for(j=0; j<BEZIER_CURVES_NUM; j++)
+		linecanvas_graphics.drawBezier(sx, sy, w, h);
+	sx = sx + w + space_x;
+	linecanvas_graphics.paint();
+	cur_syms_num++;
+}
+
+
+var linecanvas_graphics = new Graphics('linecanvas');
+
+// setup the timer
+window.setInterval("timer_func()",SYMBOL_TIME_INTERVAL);
+
+</script>
+
+</body>
+</html>
