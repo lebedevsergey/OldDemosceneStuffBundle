@@ -19,8 +19,6 @@
 
 JavaScript script that generates nonsense Chinese-like symbols.
 
-(c) 2002 Sergey Lebedev, licensed under the Apache License, Version 2.0
-
 ### Copyright ###
 * (c) 2002 Sergey Lebedev, licensed under the Apache License, Version 2.0
 * Feel free to contact me at:
