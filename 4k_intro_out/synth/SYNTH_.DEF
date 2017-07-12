@@ -1,0 +1,5 @@
+; definitions for .dll synth version - used by synth GUI
+
+;.dll exports
+LIBRARY SYNTH
+EXPORTS Generate

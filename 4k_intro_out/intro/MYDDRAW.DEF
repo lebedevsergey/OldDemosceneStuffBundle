@@ -1,0 +1,48 @@
+include rez.inc
+
+BIT_DEPTH1 equ 24
+BIT_DEPTH2 equ 32
+
+                DXfunction_ macro interface , method 
+                 mov eax,[interface]
+                 mov edi,[eax]   ;edi = VTable(adresse)
+                 mov edi,[edi+method] ; callziel
+                  push eax
+                  call edi
+                endm
+
+                DXfunction macro  interface , method
+                 mov eax,[interface]
+                 mov edi,[eax]   ;edi = VTable(adresse)
+                 mov edi,[edi+method] ; callziel
+                  push eax
+                  call edi
+                endm
+
+                .data
+                dxdllname db "ddraw.dll",0
+                dxfuncname db "DirectDrawCreate",0
+                DDrawIsInitialized db 0
+
+		.data?
+                OurDirectDrawInterface   dd ?
+                OurPrimarySurface        dd ?
+                OurOffscreenSurface      dd ?
+
+                SurfaceDescription DDSURFACEDESC <>
+
+		.code
+
+RGB macro red,green,blue
+        xor eax,eax
+        mov ah,blue
+        shl eax,8
+        mov ah,green
+        mov al,red
+endm
+
+IFDEF	DEBUG_VER
+		.data
+                MessageBoxTitle db "DX Err" ,0
+		vidmoderrmsg db  "DDSETDISPLAYMODE",0
+ENDIF

@@ -1,0 +1,102 @@
+IS_SOUND	equ	1
+
+extrn Pascal _MAIN : near
+extrn Pascal VIRT_SCREEN1 : near
+extrn Pascal GENERATE : near
+;extrn Pascal INIT : near
+
+
+include kernel32.inc
+include user32.inc
+include gdi32.inc
+include winmm.inc
+
+timeGetTime PROTO
+TextOutA PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+Show_Cursor PROTO :DWORD
+
+
+PARTS_NUM   equ  2
+
+FONT_HEIGHT    equ   6
+FONT_WIDTH     equ   6
+
+
+		.data?
+
+		TIME  dd  ?
+		INITTIME  dd  ?
+
+		MessageBuffer dd ?,?,?,?,?,?,?
+
+
+
+Public TIME
+Public INITTIME
+
+		.data
+
+		PARTNUM  db  1
+		Public PARTNUM
+
+		Vidmode_Flg  dd  0
+
+		Vidmode_Depths_Tab  db  32,24,16
+
+		Blit_Proc_Tab    dd  offset Blit_32bpp
+		  		 dd  offset Blit_24bpp
+		  		 dd  offset Blit_16bpp
+
+
+		Windowhandle dd 0
+
+;the following constants describe the content of the message structure residing on the stack:
+		MSGhWnd   equ 0
+		MSGmsg    equ 4
+		MSGwParam equ 8
+		MSGlParam equ 12
+
+;GetMessage requires a buffer for an incoming Message (one Message = 7 DWORDS):
+
+		MyClassName db 'EDIT',0
+
+
+        IFNDEF masm
+                WS_EX_DLGMODALFRAME                  equ 1h
+                WS_EX_NOPARENTNOTIFY                 equ 4h
+                WS_EX_TOPMOST                        equ 8h
+                WS_EX_ACCEPTFILES                    equ 10h
+                WS_EX_TRANSPARENT                    equ 20h
+                WS_EX_MDICHILD                       equ 00000040h
+                WS_EX_TOOLWINDOW                     equ 00000080h
+                WS_EX_WINDOWEDGE                     equ 00000100h
+                WS_EX_CLIENTEDGE                     equ 00000200h
+                WS_EX_CONTEXTHELP                    equ 00000400h
+                WS_EX_RIGHT                          equ 00001000h
+                WS_EX_LEFT                           equ 00000000h
+                WS_EX_RTLREADING                     equ 00002000h
+                WS_EX_LTRREADING                     equ 00000000h
+                WS_EX_LEFTSCROLLBAR                  equ 00004000h
+                WS_EX_RIGHTSCROLLBAR                 equ 00000000h
+                WS_EX_CONTROLPARENT                  equ 00010000h
+                WS_EX_STATICEDGE                     equ 00020000h
+                WS_EX_APPWINDOW                      equ 00040000h
+                WS_EX_OVERLAPPEDWINDOW               equ WS_EX_WINDOWEDGE OR WS_EX_CLIENTEDGE
+                WS_EX_PALETTEWINDOW                  equ WS_EX_WINDOWEDGE OR WS_EX_TOOLWINDOW OR WS_EX_TOPMOST
+
+             WNDCLASSEX struc
+                cbSize       dd      ?
+                Style        dd      ?       ; class style
+                lpfnWndProc  dd      ?
+                cbClsExtra   dd      ?
+                cbWndExtra   dd      ?
+                hInstance    dd      ?       ; instance handle
+                hIcon        dd      ?       ; class icon handle
+                hCursor      dd      ?       ; class cursor handle
+                hbrBackground dd     ?       ; class background brush
+                lpszMenuName dd      ?       ; menu name
+                lpszClassName dd     ?       ; far ptr to class name
+                hIconSm       dd     ?
+             WNDCLASSEX ends
+        ENDIF
+
