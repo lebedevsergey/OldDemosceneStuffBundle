@@ -1,0 +1,55 @@
+TEX_SIZE        equ   256    ; Размер текстур
+
+DESERT_COM      equ  0
+BLUR_COM        equ  1
+WOBBLE_COM      equ  2
+ALPHA_COM       equ  3
+COLOR_COM       equ  4
+TLO_COM         equ  5
+FPLASMA_COM     equ  6
+RIPPLE_COM      equ  7
+INVERT_COM      equ  8
+POLAR_COM       equ  9
+TWIRL_COM       equ  10
+PHONG1_COM      equ  11
+PHONG2_COM      equ  12
+CLEAR_TEX_COM   equ  13   ; Нужна для устранения глюка от debug_line
+
+END_COM         equ  0FFH
+
+TX1           equ  0
+TX2           equ  1
+
+TGA_HEADER struc
+        Text_Size  db   ?
+        Map_Type   db   ?
+        Data_Type  db   ?
+        Map_Org    dw   ?
+        Map_Len    dw   ?
+        CMapBits   db   ?
+        XOffs      dw   ?
+        YOffs      dw   ?
+        Width_     dw   ?
+        Height_    dw   ?
+        Databits   db   ?
+        ImType     db   ?
+ends
+
+.DATA
+Com_Table:
+                dd   Do_Desert
+                dd   Blurx256
+                dd   Wobblex256
+                dd   Alpha_Texture
+                dd   Do_Color
+                dd   Do_Tlo
+                dd   Do_Fplasma
+                dd   Ripplex256
+                dd   Invert_Color
+                dd   Polarx256
+                dd   Twirlx256
+                dd   Do_Phong1
+                dd   Do_Phong2
+                dd   Clear_Tex
+
+

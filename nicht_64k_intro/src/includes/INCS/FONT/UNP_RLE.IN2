@@ -1,0 +1,37 @@
+AA_Font1_Interval  equ  4
+
+.CODE
+Unp_Raw proc near
+	pushad
+lea esi,Packed_AA_Font1_Sprite
+lea edi,AA_Font1_Sprite
+
+	lodsd
+	stosd
+	mov  ecx,eax
+	lodsd
+	stosd
+	imul ecx,eax
+@@tt1:
+	xor  eax,eax
+	lodsb
+	imul eax,01010101h
+	stosd
+	dec ecx
+	jnz @@tt1
+
+	popad
+
+	retn
+
+	endp
+
+.DATA
+AA_Font1  FONT_RECORD <AA_FONT_X_SIZE,AA_FONT_Y_SIZE,AA_ALL_FONT_X_SIZE*4,AA_Font1_Sprite,AA_Font1_Interval,AA_Font1_Spacing>
+
+AA_Font1_Spacing  db  15,15,15,16,17,11,16,16,7 ,9 ,14
+		    ; A  B  C  D  E  F  G  H  I  J  K
+	        db  7 ,26,16,15,16,16,11,14,10,16,16
+		  ; L  M  N  O  P  Q  R  S  T  U  V
+	       db  24,16,16,16
+		 ; W  X  Y  Z 

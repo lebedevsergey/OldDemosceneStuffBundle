@@ -1,0 +1,240 @@
+FONT7_X  equ  4
+FONT7_Y  equ  9
+
+.CODE
+
+
+FONT_RECORD   struc
+  Font_Letter_X_Size      dd  ?
+  Font_Letter_Y_Size      dd  ?
+  Font_X_Size_            dd  ?
+  Font_Ptr                dd  ?
+  Font_X_Interval         dd  ?
+ENDS
+
+
+Draw_Letter   proc
+; eax: Letter
+; ebx: font record
+                pushad
+@@rrr:
+                cmp  eax,' '
+                jz   @@Just_A_Space
+
+
+                mov  ecx,[ebx].Font_Letter_X_Size
+                shl  ecx,2
+sub eax,'A'
+                imul eax,ecx
+add eax,8
+                mov  esi,[ebx].Font_Ptr
+                add  esi,eax
+
+                mov ebp,HOR_RAZR*4
+                sub ebp,ecx
+
+                mov edx,[ebx].Font_Letter_Y_Size
+@@D_S_Loop1:
+                mov  ecx,[ebx].Font_Letter_X_Size
+                push esi
+                push edx
+                mov  edx,Cur_Font_Color
+
+@@D_S_Loop2:
+                lodsd
+                or eax,eax
+                jz @@Not_Draw2
+                cmp eax,0FF000000h
+                jz  @@tt3
+                mov eax,edx
+@@tt3:
+                mov [edi],eax
+
+@@Not_Draw2:
+                add  edi,4
+                dec ecx
+                jnz @@D_S_Loop2
+
+                pop edx
+                pop esi
+
+                add edi,ebp
+                add esi,[ebx].Font_X_Size_
+                dec edx
+                jnz @@D_S_Loop1
+
+@@Just_A_Space:
+                popad
+                retn
+
+endp
+
+Draw_String   proc
+; esi: string
+; edi: Screen ptr
+; eax: color
+; ebx: font rec
+; ecx: X coord
+; edx: Y Coord
+                pushad
+
+cmp ecx,HOR_RAZR
+jae @@String_End
+cmp edx,VERT_RAZR
+jae @@String_End
+
+                mov  Cur_Font_Color,eax
+
+
+                cmp Write_String2_Flg,0
+                jz @@rr3
+
+                mov eax,[ebx].Font_Letter_Y_Size
+                shr eax,1
+                sub  edx,eax
+                mov eax,[ebx].Font_Letter_X_Size
+                shr eax,1
+                sub  ecx,eax
+@@rr3:
+
+                imul edx,HOR_RAZR
+                add  edx,ecx
+                lea edi,[edx*4+edi]
+
+                mov  edx,[ebx].Font_Letter_X_Size
+                add  edx,[ebx].Font_X_Interval
+                shl  edx,2
+
+                xor  eax,eax
+@@tt1:
+                lodsb
+                or  al,al
+                jz  @@String_End
+
+cmp Invert_String_Flg,0
+jz @@rr1
+                call Draw_Invert_Letter
+jmp @@rr2
+
+@@rr1:
+                call Draw_Letter
+@@rr2:
+
+                add edi,edx
+                jmp @@tt1
+
+@@String_End:
+
+                popad
+                retn
+endp
+
+
+Draw_Invert_Letter   proc
+; eax: Letter
+; ebx: font record
+                pushad
+
+                mov  ecx,[ebx].Font_Letter_X_Size
+                shl  ecx,2
+sub eax,' '
+                imul eax,ecx
+add eax,8
+                mov  esi,[ebx].Font_Ptr
+                add  esi,eax
+
+                mov ebp,HOR_RAZR*4
+                sub ebp,ecx
+
+                mov edx,[ebx].Font_Letter_Y_Size
+@@D_S_Loop1:
+                mov  ecx,[ebx].Font_Letter_X_Size
+                push esi
+                push edx
+                mov  edx,0
+@@D_S_Loop2:
+                lodsd
+                or eax,eax
+                jz @@Not_Draw2
+                mov eax,edx
+@@tt3:
+                mov [edi],eax
+
+@@Not_Draw2:
+                add  edi,4
+                dec ecx
+                jnz @@D_S_Loop2
+
+                pop edx
+                pop esi
+
+                add edi,ebp
+                add esi,[ebx].Font_X_Size_
+                dec edx
+                jnz @@D_S_Loop1
+
+
+                popad
+                retn
+endp
+
+
+Scale_Sprite   proc
+; ebx: Scale_X
+; ecx: Scale_Y
+                pushad
+
+                mov  Sprite_Scale_X,ebx
+                mov  Sprite_Scale_Y,ecx
+
+                lodsd
+                mov SPRITE_X1,eax
+                imul eax,ebx
+                stosd
+                lodsd
+                mov SPRITE_Y1,eax
+                imul eax,ecx
+                stosd
+
+                mov edx,SPRITE_Y1
+@@D_S_Loop1:
+                push edx
+
+                mov edx,esi
+                mov  ebx,Sprite_Scale_Y
+@@D_S_Loop3:
+                mov esi,edx
+
+                mov ebp,SPRITE_X1
+@@D_S_Loop2:
+                lodsd
+                mov  ecx,Sprite_Scale_X
+                rep stosd
+                dec ebp
+                jnz @@D_S_Loop2
+
+                dec ebx
+                jnz @@D_S_Loop3
+
+                pop edx
+                dec edx
+                jnz @@D_S_Loop1
+
+                popad
+                retn
+ endp
+
+
+
+.DATA
+Invert_String_Flg db 0
+Write_String2_Flg db 0
+
+.DATA?
+Cur_Font_Color   dd ?
+
+.DATA
+Font1  FONT_RECORD <LETTER_X_SIZE,FONT_Y_SIZE,FONT_X_SIZE*4,Font1_Sprite,0>
+Font6  FONT_RECORD <LETTER_X_SIZE*2,FONT_Y_SIZE*2,FONT_X_SIZE*4*2,Font6_Sprite,0>
+Font2  FONT_RECORD <LETTER_X_SIZE*3,FONT_Y_SIZE*3,FONT_X_SIZE*4*3,Font2_Sprite,0>
+Font7  FONT_RECORD <LETTER_X_SIZE*FONT7_X,FONT_Y_SIZE*FONT7_Y,FONT_X_SIZE*4*FONT7_X,Font7_Sprite,0>

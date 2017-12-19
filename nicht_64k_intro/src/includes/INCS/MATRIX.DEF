@@ -1,0 +1,28 @@
+MATRIX_SIZE    equ    4
+VECTOR_SIZE    equ    4
+
+MATRIX4x4 struc
+  El00  dd  ?
+  El01  dd  ?
+  El02  dd  ?
+  El03  dd  ?
+  El10  dd  ?
+  El11  dd  ?
+  El12  dd  ?
+  El13  dd  ?
+  El20  dd  ?
+  El21  dd  ?
+  El22  dd  ?
+  El23  dd  ?
+  El30  dd  ?
+  El31  dd  ?
+  El32  dd  ?
+  El33  dd  ?
+ends  
+
+VECTOR4 struc
+  VX  dd  ?
+  VY  dd  ?
+  VZ  dd  ?
+  Ort  dd  ?
+ends

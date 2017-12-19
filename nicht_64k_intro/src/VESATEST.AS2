@@ -1,0 +1,74 @@
+INTRO_GUS_VER  equ  1
+
+DEBUG_PART   equ  1
+
+IF DEBUG_PART EQ  2
+  DEBUG_POS equ TIME0 SHR  8+1
+ENDIF
+
+IF DEBUG_PART EQ  3
+  DEBUG_POS equ (TIME_1 SHR 8)+1
+ENDIF
+
+IF DEBUG_PART EQ  4
+  DEBUG_POS equ (TIME_3 SHR 8)+1
+ENDIF
+
+IF DEBUG_PART EQ  5
+  DEBUG_POS equ TIME_4 SHR  8+1
+ENDIF
+
+IF DEBUG_PART EQ  6
+  DEBUG_POS equ TIME_5 SHR  8+2
+ENDIF
+
+IF DEBUG_PART EQ  7
+  DEBUG_POS equ TIME_6 SHR  8+1
+ENDIF
+
+IF DEBUG_PART EQ  8
+  DEBUG_POS equ TIME_7 SHR  8+1
+ENDIF
+
+include file1.inc
+
+.CODE
+
+_main:
+
+jmp short __main
+db 'WATCOM'
+__main:
+
+        mov __psp,es
+
+        mov Manual_Vidmode_Flg,0
+        cmp word ptr es:[82h],'v-'
+        jnz @@No_Vidmode_Setup
+        mov Manual_Vidmode_Flg,1
+        @@No_Vidmode_Setup:
+
+        mov ax,ds
+        mov es,ax
+        mov gs,ax
+        mov fs,ax
+
+        call Player_Init
+
+        call  Set_Videomode
+
+include myprog.inc
+
+        call Player_Deinit
+Exit2:
+        Textmode
+
+        lea  edx,Msg1
+        mov  ah,09h
+        int 21h
+
+Exit:
+        Quittodos
+
+        include 1.inc
+end _main

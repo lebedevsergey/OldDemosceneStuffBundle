@@ -1,0 +1,36 @@
+Bump_Scale  equ  1;3
+
+Do_Bump  macro Col_Num
+local @@tt1,@@tt2
+
+                mov  al,[esi+4*Bump_Scale+Col_Num]
+                mov  bl,[esi-4*Bump_Scale+Col_Num]
+or al,bl
+jz @@tt1
+                sub  al,bl
+                cbw
+                sub  ax,Cur_Delta_X
+
+                mov  bx,ax
+
+                mov  al,[esi-HOR_RAZR*4*Bump_Scale+Col_Num]
+                mov  ah,[esi+HOR_RAZR*4*Bump_Scale+Col_Num]
+or al,ah
+jz @@tt1
+                sub  al,ah
+                cbw
+                sub  ax,Cur_Delta_Y
+
+                mov  bh,al
+                mov  eax,[ebp+ebx*4]
+                jmp @@tt2
+@@tt1:
+                xor  eax,eax
+@@tt2:
+                mov  [edi],eax
+
+;               inc  esi
+;               inc  edi
+add edi,4
+add esi,4
+endm

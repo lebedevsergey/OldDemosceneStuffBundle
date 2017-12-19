@@ -30,7 +30,6 @@ OUT 4kb intro source
 * intro held 2-nd place at Paradox 2002
 * at that time if was one of the first 4kb intro with music under Windows
 * /intro - intro sources
-* /intro/bin - intro sources
 * /synth - intro music synth sources 
 * release version you can get here http://www.pouet.net/prod.php?which=7499
 

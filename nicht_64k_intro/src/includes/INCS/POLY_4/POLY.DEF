@@ -1,0 +1,163 @@
+;DO_BILIN_INTERPOL   equ   1
+
+SUBPIXEL_           equ   1
+SUBTEXEL_           equ   1
+
+DO_FIX1             equ   1
+DO_FIX2             equ   1
+DO_FIX2_            equ   1
+
+TRI_FIX_P_COEF_XY    equ   16
+TRI_FIX_P_COEF_XY__  equ  65536.0
+
+TRI_FIX_P_COEF_UV   equ   16
+TRI_FIX_P_COEF_UV__ equ   65536.0
+
+MAX_POLY_VERTEX_NUM equ   18
+
+POLY_VERTEX_DATA STRUC
+  P_V_X       dd     ?
+  P_V_Y       dd     ?
+  P_V_Z       dd     ?
+  P_V_K1      dd     ?
+
+  P_New_NX    dd     ?
+  P_New_NY    dd     ?
+  P_New_NZ    dd     ?
+  P_New_NK1   dd     ?
+
+  P_V_SX      dd     ?
+  P_V_SY      dd     ?
+  P_V_U       dd     ?
+  P_V_V       dd     ?
+  P_V_FU      dd     ?
+  P_V_FV      dd     ?
+
+  P_V_Z_INT   dd     ?     ; !!!!!! Должен быть всегда последним
+POLY_VERTEX_DATA ENDS
+
+Ceil   macro   PAR
+       add  PAR,0FFFFh
+       endm
+
+Do_Fix_Calc       macro Param1,Param2
+                   mov  eax,[ebp].P_V_&Param1
+                   mov  ebx,[esi].P_V_&Param1
+                   sub  eax,ebx
+                   mov  Poly_Edge_Start_&Param2,ebx
+                   imul ecx
+                   shrd eax,edx,TRI_FIX_P_COEF_XY-2
+                   mov  Poly_Edge_D&Param2,eax
+endm
+
+Do_Fix_Calc_Tex    macro     ; Вычисление параметров так,
+                             ; чтобы не было переполнения при DY < 1
+                   mov eax,40000000h
+                   xor edx,edx
+                   idiv ecx
+                   mov ecx,eax
+
+                   Do_Fix_Calc SX,X
+                   Do_Fix_Calc U,U
+                   Do_Fix_Calc V,V
+                   Do_Fix_Calc Z_INT,Z
+endm
+
+Do_Fix_Calc_Phong    macro
+                   Do_Fix_Calc_Tex
+                   Do_Fix_Calc FU,FU
+                   Do_Fix_Calc FV,FV
+endm
+
+Do_Fix_Calc_X      macro     ; Вычисление параметров так,
+                             ; чтобы не было переполнения при DY < 1
+mov eax,40000000h
+xor edx,edx
+idiv ecx
+                   mov  ecx,[ebp].P_V_SX
+                   mov  ebx,[esi].P_V_SX
+                   sub  ecx,ebx
+                   mov  Poly_Edge_Start_X,ebx
+imul ecx
+                   shrd eax,edx,TRI_FIX_P_COEF_XY-2
+                   mov  Poly_Edge_DX,eax
+
+endm
+
+Do_Fix3 macro        ; X1 не должно быть = X3, иначе деление на 0
+       mov  eax,[esi].P_V_SY
+       cmp  eax,[edi].P_V_SY
+       jnz  @@Sort1
+       xchg esi,ebp
+@@Sort1:
+endm
+
+Calc_DParam1  macro  Param1,Param2         ; Расчет Delta какого-нить из параметров
+                   mov  eax,[ebp].P_V_&Param1
+                   mov  ebx,[esi].P_V_&Param1
+                   sub  eax,ebx
+                   mov  Poly_Edge_Start_&Param2,ebx
+                   cdq
+                   shld edx,eax,TRI_FIX_P_COEF_XY
+                   shl  eax,TRI_FIX_P_COEF_XY
+                   idiv ecx
+                   mov  Poly_Edge_D&Param2,eax
+                   ENDM
+
+Calc_DParam1_Z      macro
+                   mov  eax,[ebp].P_V_Z_INT
+                   mov  ebx,[esi].P_V_Z_INT
+                   sub  eax,ebx
+                   mov  Poly_Edge_Start_Z,ebx
+                   cdq
+                   shld edx,eax,TRI_FIX_P_COEF_XY
+                   shl  eax,TRI_FIX_P_COEF_XY
+                   idiv ecx
+                   mov  Poly_Edge_DZ,eax
+                   ENDM
+
+Calc_Line_DParam1  macro  Param1,Param2      ; Расчет Line Delta какого-нить
+                                             ;  из параметров
+                   fild  [ebp].P_V_&Param1
+                   fild  [edi].P_V_&Param1
+                   fisub [esi].P_V_&Param1
+                   fmul  st,st(3)
+                   fiadd [esi].P_V_&Param1
+                   fsubp st(1),st
+                   fmul  st,st(1)
+                   fistp Poly_Line_D&Param1
+endm
+
+Calc_Line_DParam1_Z  macro
+                   fild  [ebp].P_V_Z_INT
+                   fild  [edi].P_V_Z_INT
+                   fisub [esi].P_V_Z_INT
+                   fmul  st,st(3)
+                   fiadd [esi].P_V_Z_INT
+                   fsubp st(1),st
+                   fmul  st,st(1)
+                   fistp Poly_Line_DZ
+endm
+
+Do_Subpixel_Correct macro  Param1,Param2
+                   mov  eax,Param1
+                   imul Poly_Edge_Ex_Y
+                   shrd eax,edx,TRI_FIX_P_COEF_XY
+                   add  Param2,eax
+endm
+
+Edge_Param_Lin_Interp macro Param1
+                   fild  [ebp].P_V_&Param1
+                   fisub [esi].P_V_&Param1
+                   fmul  st,st(1)
+                   fiadd [esi].P_V_&Param1
+                   fistp [edi].P_V_&Param1
+endm
+
+Edge_Param_Lin_Interp_Float macro Param1
+                   fld  [ebp].P_V_&Param1
+                   fsub [esi].P_V_&Param1
+                   fmul  st,st(1)
+                   fadd [esi].P_V_&Param1
+                   fstp [edi].P_V_&Param1
+endm

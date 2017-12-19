@@ -1,0 +1,57 @@
+
+.CODE
+locals
+
+Bump           proc
+; esi: Screen from
+; edi: Screen to
+; ebp: Lightmap
+                pushad
+
+
+                xor  ebx,ebx
+                xor  eax,eax
+                xor  edx,edx
+@@Loop_Y:
+
+                mov  ax,Bump_Light_Y
+                sub  ax,dx
+                add  ax,TEX_SIZE/2
+                mov  Cur_Delta_Y,ax
+
+                xor  ecx,ecx
+@@Loop_X:
+                mov  ax,Bump_Light_X
+                sub  ax,cx
+                add  ax,TEX_SIZE/2
+
+                mov  Cur_Delta_X,ax
+
+                Do_Bump  2
+;                Do_Bump
+ ;               Do_Bump
+;inc edi
+;inc esi
+
+
+                inc ecx
+                cmp ecx,HOR_RAZR
+                jnz @@Loop_X
+
+                inc edx
+                cmp edx,VERT_RAZR-1
+                jnz @@Loop_Y
+
+                popad
+
+                retn
+endp
+
+.DATA
+Bump_Light_X  dw  160
+Bump_Light_Y  dw  100
+
+.DATA?
+Cur_Delta_X  dw  ?
+Cur_Delta_Y  dw  ?
+

@@ -1,0 +1,25 @@
+
+TABLE_WIDTH_  equ  HOR_RAZR*2
+TABLE_HEIGHT_ equ VERT_RAZR*2
+
+COLORS_IN_ROW  equ 200 ;51
+
+
+Put256Pixel__ MACRO
+
+; IN : al - pixel color
+
+movzx esi,ax
+lea esi,[esi*2+esi]
+add esi,offset Palette4
+
+lodsd
+stosd
+
+ENDM
+
+TABLE_REC  struc
+TABLE_X    dd    ?
+TABLE_Y    dd    ?
+Table_Show_Adder_  dd  ?
+	   ends

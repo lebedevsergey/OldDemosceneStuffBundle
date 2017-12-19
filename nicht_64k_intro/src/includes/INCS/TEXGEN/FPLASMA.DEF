@@ -1,0 +1,61 @@
+Adjus macro X1,Y1,X2,Y2,X,Y
+
+                movzx   ebx,X1
+                mov      bh,Y1
+                movzx   ecx,X2
+                mov      ch,Y2
+                movzx   edx,X
+                mov      dh,Y
+                call    Adjust
+endm
+
+GetCol macro X,Y
+                movzx   edx,X
+                mov     dh,Y
+                movzx   ax,byte ptr [edx*4+edi]
+                or      ax,ax
+endm
+
+PutCol macro X,Y,Col
+;		mov eax,col
+                mov     edx,X
+                mov     dh,Y
+		Putcol2
+endm
+
+Subdivid macro X1,Y1,X2,Y2
+
+;                push qword ptr F_P_X1
+                push word ptr F_P_X1
+                push word ptr F_P_X2
+                push word ptr F_P_X
+
+                mov     dl,X1
+                mov     F_P_X1,dl      
+                mov     dl,Y1
+                mov     F_P_Y1,dl      
+
+                mov     dl,X2
+                mov     F_P_X2,dl
+                mov     dl,Y2
+                mov     F_P_Y2,dl
+
+                call    Subdivide
+
+                pop word ptr F_P_X
+                pop word ptr F_P_X2
+                pop word ptr F_P_X1
+
+;                pop qword ptr F_P_X1
+
+endm
+
+PutCol2 macro
+
+;mov ah,al
+;push ax
+;shl eax,16
+;pop ax
+                mov  [edx*4+edi],al   ;eax
+ 
+endm

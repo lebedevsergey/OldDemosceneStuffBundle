@@ -1,0 +1,162 @@
+METAB_TYPE   equ   1
+
+; !!!!!!! В COMPARE_TMP_GRID могут быть глюки, если
+; знач. ф-ции отриц.
+
+USE_HASH      equ  1
+
+BLOBS_NUM     equ  6
+
+IF  METAB_TYPE EQ  1
+ISO_FUNC_CONST equ 0.01;10000000.2 ;0.0015; 0.0999 ;06
+ELSE
+ISO_FUNC_CONST equ 0.6
+ENDIF
+
+BLOB_OBJ_CAM_DIST  equ  200
+
+BOX_X_DIM     equ  23
+BOX_Y_DIM     equ  23
+BOX_Z_DIM     equ  23
+
+BOX_Start_X_  equ  -110.0
+BOX_Start_Y_  equ  -130.0
+BOX_Start_Z_  equ  -110.0
+
+BOX_X_SIZE    equ  220
+BOX_Y_SIZE    equ  260
+BOX_Z_SIZE    equ  220
+
+MAX_BLOB_VERT_NUM   equ   16
+MAX_BLOB_POLY_NUM   equ   16
+
+BLOB_VERTS_HASH_TAB_SIZE   equ  0FFFh       ; 2^n-1
+HASH_COLLISION_STEP        equ  3117
+
+BLOB_VERTS_HASH_STRUC   STRUC
+HASH_KEY      dd     ?
+HASH_VERT     dd     ?
+              ENDS
+
+BLOB_STRUC    STRUC
+Blob_X        dd     ?
+Blob_Y        dd     ?
+Blob_Z        dd     ?
+
+Blob_DY         dd    ?
+Blob_DZ         dd    ?
+
+              ENDS
+
+ISO_FUNC_VALUE STRUC
+Func_Val_X     dd    ?
+Func_Val_Y     dd    ?
+Func_Val_Z     dd    ?
+Func_Value     dd    ?
+Func_Grad_X    dd    ?
+Func_Grad_Y    dd    ?
+Func_Grad_Z    dd    ?
+               ENDS
+
+BLOB_PARAM     STRUC
+Blob_X         dd    ?
+Blob_Y         dd    ?
+Blob_Z         dd    ?
+               ENDS
+
+GET_NEIGHBOUR  macro  Add_X,Add_Y,Add_Z
+GRID_FROM_OFFSET = (Add_X+Add_Y*BOX_X_DIM+Add_Z*BOX_Y_DIM*BOX_X_DIM)*SIZE ISO_FUNC_VALUE
+             fld  [ebp+GRID_FROM_OFFSET].Func_Value
+             endm
+
+FILL_TMP_GRID  macro  Add_X,Add_Y,Add_Z,Tmp_Grid_Num
+GRID_FROM_OFFSET = (Add_X+Add_Y*BOX_X_DIM+Add_Z*BOX_Y_DIM*BOX_X_DIM)*SIZE ISO_FUNC_VALUE
+GRID_TO_OFFSET   = 4*Tmp_Grid_Num
+             lea  eax,[ebp+GRID_FROM_OFFSET]
+             mov  Cur_Grid_Ptrs[GRID_TO_OFFSET],eax
+             endm
+
+COMPARE_TMP_GRID  macro  Tmp_Grid_Num
+local @@tt0
+             mov   eax,Cur_Grid_Ptrs[4*Tmp_Grid_Num]
+
+;            fld   [eax].Func_Value
+;            fcomp ISO_FUNC_CONST_
+;             fnstsw ax
+;            shr   ah,1
+
+mov eax,[eax].Func_Value               ; !!!!!!! Здесь могут быть глюки
+cmp eax,ISO_FUNC_CONST_
+             jnb   @@tt0
+             or    Cube_Index,1 SHL Tmp_Grid_Num
+@@tt0:
+             endm
+
+CALC_GRID_INTERSECT  macro  Vert_Num, Edge_Vert1_Num, Edge_Vert2_Num
+local @@No_Intersect,@@Already_Calculated,@@Calc_Now
+; bp - edge mask
+             test  bp,1 SHL Vert_Num
+             jz    @@No_Intersect
+
+             mov   ebx,Cur_Grid_Ptrs[4*Edge_Vert1_Num]
+             mov   esi,Cur_Grid_Ptrs[4*Edge_Vert2_Num]
+
+IFDEF USE_HASH_TAB
+             call  Find_Hash
+             jnc   @@Already_Calculated
+ENDIF
+
+             mov   edi,Cur_Blob_Vert_Ptr
+             call  Inters_Interp
+             add   Cur_Blob_Vert_Ptr,SIZE TVERTEX
+
+IFDEF USE_HASH_TAB
+             call  Add_Hash
+ENDIF
+
+@@Already_Calculated:
+             mov   Cur_Blob_Verts_Nums[Vert_Num*4],edi
+@@No_Intersect:
+             endm
+
+Meta_Conv_X_U  macro X,U
+
+                fld   X
+                fmul  Meta_UV_Coef2
+                fistp U
+
+                endm
+
+Meta_Calc_UV     macro
+; ebx - object
+
+
+                 mov  ebp,[ebx].FIRST_FACE       ; Нормали полигонов
+                 mov  eax,[ebx].LAST_FACE
+@@B_S_Loop1:
+                 call Calc_Poly_Normal
+
+                 mov  edx,Meta_Tex
+                 mov  [ebp].Poly_Texture_Ptr,edx
+
+                 add  ebp, SIZE TFACE
+                 cmp  ebp,eax
+                 jbe  @@B_S_Loop1
+
+ ;                pop  ebx
+
+                 mov  ebp,[ebx].FIRST_VERTEX   ; Вычисление нормалей вершин
+                 mov  ecx,[ebx].LAST_VERTEX
+@@B_S_Loop6:
+                 lea esi,[ebp].NX
+                 call vec_norm                 ; Нормализуем нормаль ;)
+                                             ; Вычисление текстурных кооординат
+                 Meta_Conv_X_U  [ebp].NX,[ebp].VV
+                 Meta_Conv_X_U  [ebp].NY,[ebp].VU
+
+                 add  ebp, SIZE TVERTEX
+                 cmp  ebp,ecx
+                 jbe  @@B_S_Loop6
+
+;                 retn
+                 endm

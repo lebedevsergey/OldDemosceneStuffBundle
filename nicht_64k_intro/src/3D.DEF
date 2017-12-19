@@ -1,0 +1,144 @@
+;SORT_POLYS          equ 1
+;USE_Z_BUFFER        equ 1
+CUT_NEAR_POLY       equ 1
+BACKFACE_CLIP       equ 1
+
+MAX_POLY_SCENE_NUM   equ 30000
+
+SCREEN_X_SIZE_2      equ 160.0
+SCREEN_Y_SIZE_2      equ 100.0
+
+TVERTEX struc
+  X   dd   ?           ;  X,Y,Z вершины
+  Y   dd   ?
+  Z   dd   ?
+  K1  dd   ?
+
+  NX  dd   ?           ;  усредненная нормаль примыкающих полигонов
+  NY  dd   ?
+  NZ  dd   ?
+  NK  dd   ?
+
+  New_X   dd   ?           ;  X,Y,Z вершины после поворота
+  New_Y   dd   ?
+  New_Z   dd   ?
+  New_K1  dd   ?
+
+  New_NX  dd   ?           ;  усредненная нормаль примыкающих полигонов после поворота
+  New_NY  dd   ?
+  New_NZ  dd   ?
+  New_NK  dd   ?
+
+  SX  dd   ?
+  SY  dd   ?
+  VU  dd   ?           ;  U,V  текстуры
+  VV  dd   ?
+  FVU  dd   ?          ;  U,V  карты освещенности
+  FVV  dd   ?
+
+  NPOLY  dw  ?
+
+  VERTEX_VIS_FLG db ?
+
+ENDS
+
+TFACE struc
+  PA   dd   ?
+  PB   dd   ?
+  PC   dd   ?
+
+  PNX  dd   ?
+  PNY  dd   ?
+  PNZ  dd   ?
+  PNK  dd   ?
+
+  Poly_Texture_Ptr dd  ?
+  Poly_Draw_Proc  dd  ?
+
+ENDS
+
+TMODEL struc
+  FIRST_VERTEX  dd   ?
+  LAST_VERTEX   dd   ?
+  FIRST_FACE    dd   ?
+  LAST_FACE     dd   ?
+  CAMERA_DIST   dd   ?
+  MIN_CUT_Z     dd   ?
+  OBJECT_TEXTURE dd ?
+  OBJECT_SHADING_TYPE  dd  ?
+  OBJECT_MOVE_VEC dd 4 dup (?)
+  OBJECT_ANGLE_X dd 4 dup (?)
+  OBJECT_ANGLE_Y dd 4 dup (?)
+  OBJECT_ANGLE_Z dd 4 dup (?)
+  OBJECT_New_Coord_Transf_Flg  db  ?
+ENDS
+
+
+Add_Norm  macro A
+                 mov   edx,A
+                 fld   [ebp].PNK
+                 fld   [ebp].PNZ
+                 inc   [edx].NPOLY
+                 fld   [ebp].PNY
+                 fld   [ebp].PNX
+                 fadd  [edx].NX
+                 fstp  [edx].NX
+                 fadd  [edx].NY
+                 fstp  [edx].NY
+                 fadd  [edx].NZ
+                 fstp  [edx].NZ
+                 fadd  [edx].NK
+                 fstp  [edx].NK
+endm
+
+Calc_Screen_Normal  macro
+; EBP : ptr to POLY
+                mov eax,[ebp].PA
+                fild [eax].SY
+                mov ebx,[ebp].PB
+                fisub [ebx].SY
+                fild [eax].SX
+                fisub [ebx].SX
+
+                fild [ebx].SY
+                mov eax,[ebp].PC
+                fisub [eax].SY
+                fild [ebx].SX
+                fisub [eax].SX
+
+                fxch st(2)
+                fmulp st(1),st(0)
+
+                fxch st(2)
+                fmulp st(1),st(0)
+
+                fsubp st(1),st(0)
+endm
+
+Conv_X_U  macro X,Y,U
+
+                fld    X
+;fabs
+                fld    Y
+;fabs
+                fpatan
+                fmul   Radian_Coef4
+   fmul  TRI_FIX_P_COEF_UV_
+              fabs
+                fistp  U
+
+endm
+
+Test_Coord macro
+local @@tt1
+                 fcomp MIN_Z2
+                 fnstsw ax
+                 shr ah,1
+                 jnc @@tt1
+                 mov [ebp].VERTEX_VIS_FLG,0
+@@tt1:
+endm
+
+X_SIZE_2  dd  SCREEN_X_SIZE_2
+Y_SIZE_2  dd  SCREEN_Y_SIZE_2
+MIN_Z2_   equ -80.0

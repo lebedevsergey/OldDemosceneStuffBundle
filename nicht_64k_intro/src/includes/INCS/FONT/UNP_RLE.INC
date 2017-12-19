@@ -1,0 +1,110 @@
+
+FONT_Y_SIZE  equ    25
+LETTER_X_SIZE  equ  21 ;2
+FONT_SYM_NUM   equ  26
+
+FONT_X_SIZE  equ  FONT_SYM_NUM*LETTER_X_SIZE
+
+.CODE
+locals
+Unp_rle_Spr  proc near
+; esi: RLE sprite
+; edi: sprite
+; eax,ebx: Sprite x,y
+        pushad
+
+;mov eax,CREDITS_X
+;mov ebx,CREDITS_Y
+
+        mov RLE_Spr_X,eax
+        stosd
+        mov RLE_Spr_Y,ebx
+        imul eax,ebx
+        mov RLE_Spr_Size,eax
+
+        mov eax,RLE_Spr_Y
+        stosd
+
+;       mov ebp,HOR_RAZR
+;       sub ebp,RLE_Spr_X
+;       shl ebp,2
+
+        xor  eax,eax
+        xor  ebx,ebx
+;       xor  edx,edx
+@@Loop1:
+        xor   eax,eax
+
+        xor   ecx,ecx
+        inc   ecx
+
+        lodsb
+        test  al,0C0h
+        jz   @@One
+
+        mov  cl,al
+        sub  cl,0C0h
+        lodsb
+@@One:
+        add ebx,ecx
+        cmp al,0FFh
+        jz @@gg1
+
+        cmp al,0FDh
+        jnz @@gg10
+        mov eax,0FF000000h
+        jmp @@gg2
+@@gg10:
+
+        xor eax,eax
+        cmp Invert_Rle_Flg,1
+        jz  @@gg2
+        mov eax,RLE_COLOR
+        jmp @@gg2
+@@gg1:
+        xor eax,eax
+        cmp Invert_Rle_Flg,1
+        jnz @@gg2
+        mov eax,RLE_COLOR
+@@gg2:
+
+@@gg3:
+;       or eax,eax
+;       jz  @@gg5
+        mov  [edi],eax
+;@@gg5:
+        add edi,4
+
+;       inc  edx
+;       cmp  edx,RLE_Spr_X
+;       jb  @@gg4
+;       xor  edx,edx
+;       add  edi,ebp
+; @@gg4:
+
+        dec ecx
+        jnz @@gg3
+
+        cmp  ebx,RLE_Spr_Size
+        jl   @@Loop1
+
+
+        popad
+
+        retn
+
+        endp
+
+
+.DATA
+
+RLE_COLOR  dd 0ffffffffh
+Invert_Rle_Flg  db  1
+
+.DATA?
+RLE_Spr_X  dd   ?
+RLE_Spr_Y  dd   ?
+RLE_Spr_Size  dd  ?
+
+Font1_Sprite      dd  ?,?,FONT_X_SIZE*FONT_Y_SIZE dup (?)
+Font2_Sprite      dd  ?,?,FONT_X_SIZE*FONT_Y_SIZE*9 dup (?)

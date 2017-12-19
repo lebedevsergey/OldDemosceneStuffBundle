@@ -1,0 +1,39 @@
+
+NULL              equ   0FFFFFFFFh
+MAX_IDLE_PROC_NUM equ   420
+
+PROC_RECORD   struc
+  Init_Proc_Ptr     dd  ? 
+  Proc_Ptr          dd  ? 
+  Proc_Time         dd  ?
+;  Proc_Data_Ptr     dd  ? 
+ENDS
+
+PARAM_PROC_RECORD   struc
+  Param_Proc_Ptr          dd  ? 
+  Param_Proc_Time         dd  ?
+ENDS
+
+TIME_TAB_REC   struc
+  Event_Time              dd  ?
+  Event_Flg               db  0
+  Event_Proc              dd  ?
+ENDS
+
+
+TIME_TAB  struc
+Time_Tab_Begin_Ptr  	     dd  ?
+Time_Tab_Cur_Ptr  	     dd  ?
+Time_Tab_Base_Time  dd  ?
+Time_Tab_Reuse_Flg  db  ?
+ends
+
+IDLE_PROC_REC   struc
+  Idle_Proc_Base_Time       dd  ? 
+  Idle_Proc_End_Time        dd  ? 
+  Idle_Proc_Ptr             dd  ? 
+  Idle_Proc_Param1          dd  ? 
+  Idle_Proc_Param2          dd  ? 
+  Idle_Proc_Param3          dd  ? 
+ENDS
+

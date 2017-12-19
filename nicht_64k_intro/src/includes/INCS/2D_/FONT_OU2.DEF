@@ -1,0 +1,13 @@
+Max_Part_Bright_Subber_   equ   150.0;255.0
+
+MY_FONT_X_SIZE     equ  FONT_X_SIZE*2
+MY_FONT_Y_SIZE     equ  FONT_Y_SIZE*2
+
+X_Pixel_Interval_   equ  9
+Y_Pixel_Interval_   equ  10
+
+FONT_PARTICLE   STRUC
+  Part_Bright_Subber           dd    ?
+  Part_Bright_Subber_Delta     dd    ?
+  Part_Bright_Subber_Time      dd    ?
+ENDS

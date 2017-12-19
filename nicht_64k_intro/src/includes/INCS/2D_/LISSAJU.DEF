@@ -1,0 +1,9 @@
+LISSAJU_REC  struc
+
+Lissaju_Amp_X_Coef    dw  ?
+Lissaju_Angle_X_Coef  dw  ?
+
+Lissaju_Amp_Y_Coef    dw  ?
+Lissaju_Angle_Y_Coef  dw  ?
+
+ENDS
