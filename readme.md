@@ -1,4 +1,4 @@
-# OldStuffBundle #
+# OldDemosceneStuffBundle #
 
 ### A bunch of my demo-related sources ###
 
