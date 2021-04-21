@@ -2,7 +2,7 @@
 
 ### My old demoscene related sources ###
 
-* /4k_intro_out - OUT 4kb intro sources
+* /4k_intro_out - OUT 4kb intro source codes
 * /ChineseNonsense - small JavaScript demo that generates Chinese-like nonsense symbols.
 * /synth - software synthesizer sources
 
